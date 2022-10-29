@@ -1,0 +1,177 @@
+- hosts: windows_server
+  gather_facts: no
+  tasks:
+    - name: Wait for machine to become ready
+      ansible.builtin.wait_for_connection:
+        connect_timeout: 5
+        sleep: 5
+        timeout: 300
+
+    - name: Check Windows Edition
+      ansible.windows.win_reg_stat:
+        path: HKLM:\Software\Microsoft\Windows NT\CurrentVersion
+        name: InstallationType
+      register: WinInstallationType
+
+    - name: Add Server Admins to Local Administrators
+      ansible.windows.win_group_membership:
+        name: Administrators
+        members:
+          - "{{ admingroup }}"
+        state: present
+
+    - name: Add Server Specific Admin group to Local Administrators
+      ansible.windows.win_group_membership:
+        name: Administrators
+        members:
+          - "{{ ServerSpecificLocalAdminDomain ~ '\\g_ServerAdmins_' ~ server_name }}"
+        state: present
+
+    - name: Set Timezone
+      community.windows.win_timezone:
+        timezone: "{{ server_timezone }}"
+
+    - name: On Boot TimeSync Sch Task
+      community.windows.win_scheduled_task:
+        name: Bootup-TimeSync
+        description: Syncs time at server bootup to prevent drift
+        actions:
+        - path: C:\Windows\System32\W32tm.exe
+          arguments: /resync /force
+        triggers:
+        - type: boot
+        username: SYSTEM
+        run_level: highest
+        state: present
+
+    - name: Reboot after Timezone / Sync
+      ansible.windows.win_reboot:
+
+    - name: Wait for machine to become ready after timesync reboot
+      ansible.builtin.wait_for_connection:
+        connect_timeout: 5
+        sleep: 5
+        timeout: 300
+
+    - name: Create C:\Temp\
+      ansible.windows.win_file:
+        path: C:\Temp
+        state: directory
+
+    - name: Download PsExec
+      ansible.windows.win_copy:
+        src: /home/vman/ansible/resources/layer1/psexec/2.40/PsExec.exe
+        dest: C:\Temp\PsExec.exe
+        remote_src: no
+
+    - name: Create C:\Windows\BGInfo
+      ansible.windows.win_file:
+        path: C:\Windows\BGInfo
+        state: directory
+      when: WinInstallationType.value != "Server Core"
+
+    - name: Download BGInfo
+      ansible.windows.win_copy:
+        src: /home/vman/ansible/resources/layer1/bginfo/4.32/Bginfo.exe
+        dest: C:\Windows\BGInfo
+        remote_src: no
+      when: WinInstallationType.value != "Server Core"
+
+    - name: Download BGInfo Config
+      ansible.windows.win_copy:
+        src: /home/vman/ansible/resources/layer1/bginfo/bgconfig.bgi
+        dest: C:\Windows\BGInfo
+        remote_src: no
+      when: WinInstallationType.value != "Server Core"
+
+    - name: Run BGinfo at startup
+      win_regedit:
+        key: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+        name: Bginfo
+        data: C:\Windows\BGInfo\Bginfo.exe C:\Windows\BGInfo\bgconfig.bgi /timer:0 /nolicprompt /silent
+        type: string
+      when: WinInstallationType.value != "Server Core"
+
+    - name: Check for sysmon service
+      ansible.windows.win_service:
+        name: sysmon
+      register: sysmoncheck
+
+    - name: Download Sysmon
+      ansible.windows.win_copy:
+        src: /home/vman/ansible/resources/layer1/sysmon/14.1
+        dest: C:\Temp\sysmon\
+        remote_src: no
+      when: not (sysmoncheck.exists | bool)
+
+    - name: Installing Sysmon
+      ansible.windows.win_command: sysmon.exe -accepteula -i sysmonconfig-export.xml
+      args:
+        chdir: C:\Temp\sysmon\14.1
+      when: not (sysmoncheck.exists | bool)
+
+    - name: Enable Diskperf
+      ansible.windows.win_command: diskperf -y
+
+    - name: Enroll WINRM Cert
+      ansible.windows.win_powershell:
+        script: |
+                $WinRMCert = Get-ChildItem Cert:\LocalMachine\MY | 
+                    % {
+                    $_ | Select `
+                        Thumbprint,
+                        @{N="Template";E={($_.Extensions | ?{$_.oid.Friendlyname -match "Certificate Template Information"}).Format(0) -replace "(.+)?=(.+)\((.+)?", '$2'}},
+                        @{N="Subject";E={$_.SubjectName.name}}
+                    } | where Template -eq WINRM | where { $_.subject -eq 'CN='+@([String][System.Net.Dns]::GetHostByName($env:computerName).Hostname) }
+
+                    If ($WinRMCert){ Write-host "I already got certz, ignore"} else {
+                    while(!$WinRMCert)
+                         {
+
+                         & C:\Temp\PsExec.exe /accepteula -s certreq -enroll -machine -q WINRM
+
+                            $WinRMCert = Get-ChildItem Cert:\LocalMachine\MY | 
+                                % {
+                                $_ | Select `
+                                    Thumbprint,
+                                    @{N="Template";E={($_.Extensions | ?{$_.oid.Friendlyname -match "Certificate Template Information"}).Format(0) -replace "(.+)?=(.+)\((.+)?", '$2'}},
+                                    @{N="Subject";E={$_.SubjectName.name}}
+                                } | where Template -eq WINRM | where { $_.subject -eq 'CN='+@([String][System.Net.Dns]::GetHostByName($env:computerName).Hostname) }
+
+                                Write-host "No Cert to enrol yet, trying again in 30 seconds"
+                                Sleep -Seconds 30
+                         }
+                    }
+                    Write-host "Cert enrolled for WinRM"
+
+    - name: Make WinRM Secure
+      ansible.windows.win_powershell:
+        script: |
+                $Listners = winrm e winrm/config/listener | Select-String -Pattern 'HTTPS'
+
+                    If(!$Listners){
+
+                                    $WinRMCert = Get-ChildItem Cert:\LocalMachine\MY | 
+                                        % {
+                                        $_ | Select `
+                                            Thumbprint,
+                                            @{N="Template";E={($_.Extensions | ?{$_.oid.Friendlyname -match "Certificate Template Information"}).Format(0) -replace "(.+)?=(.+)\((.+)?", '$2'}},
+                                            @{N="Subject";E={$_.SubjectName.name}}
+                                        } | where Template -eq WINRM | where { $_.subject -eq 'CN='+@([String][System.Net.Dns]::GetHostByName($env:computerName).Hostname) }
+
+                                    & winrm create winrm/config/Listener?Address=*+Transport=HTTPS '@{Hostname="' "$([String][System.Net.Dns]::GetHostByName($env:computerName).Hostname)" '";CertificateThumbprint="' "$($WinRMCert.Thumbprint)" '" }'
+
+                    } Else {Write-host "I already got WinRM Https running, ignore"}
+
+    - name: Firewall - Disable All Profiles
+      community.windows.win_firewall:
+        state: disabled
+        profiles:
+        - Public
+        - Private        
+        - Domain
+      tags: disable_firewall
+
+    - name: Pause for 30 seconds to allow the FW / Network to restart
+      pause:
+        seconds: 30

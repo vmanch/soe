@@ -1,0 +1,96 @@
+# Configuration for Azure DevOps build pipeline
+# Deploy Vanilla vMAN Windows Server SOE into any Datacenter depending on the variable groups
+
+trigger:
+- none
+
+stages:
+- stage: AU_vSphere_W2K22
+  variables:
+  - group: vman_infra_au
+  - group: vman_infra_au_vsphere
+  - group: vmanw
+
+  dependsOn: []
+  pool:
+    name: AU-ANSIBLE
+  jobs:
+  - job: Run_vMANW_PreChecks
+    pool: AU-POWERSHELL
+    steps:
+    - template: core/vmanw-pre.yml
+
+  - job: Run_vMANW_Layer_0
+    dependsOn: Run_vMANW_PreChecks
+    steps:
+    - script: ansible-playbook -i ./winsrv/core/server-inv.yml  ./winsrv/core/vmanw-vsphere-layer-0.yml --extra-vars "server_ip=$(server_ip)" --extra-vars "server_gw=$(server_gw)" --extra-vars "server_mask=$(server_mask)" --extra-vars "server_dns1=$(server_dns1)" --extra-vars "server_dns2=$(server_dns2)" --extra-vars "server_name=$(server_name)" --extra-vars "server_domain=$(server_domain)" --extra-vars "server_user=$(server_user)" --extra-vars "server_password=$(server_password)" --extra-vars "server_owner_fullname=$(server_owner_fullname)" --extra-vars "server_owner_org=$(server_owner_org)" --extra-vars "server_timezoneint=$(server_timezoneint)" --extra-vars "domain_join_user=$(domain_join_user)" --extra-vars "domain_join_pass=$(domain_join_pass)" --extra-vars "vcenter_hostname=$(vcenter_hostname)" --extra-vars "vcenter_username=$(vcenter_username)" --extra-vars "vcenter_password=$(vcenter_password)" --extra-vars "vcenter_cluster=$(vcenter_cluster)" --extra-vars "vcenter_datastore=$(vcenter_datastore)" --extra-vars "vcenter_dc=$(vcenter_dc)" --extra-vars "vcenter_folder=$(vcenter_folder)" --extra-vars "vcenter_template=$(vcenter_template)" --extra-vars "vcenter_pg=$(vcenter_pg)" --extra-vars "cpusockets=$(cpusockets)" --extra-vars "cpucorespersocket=$(cpucorespersocket)" --extra-vars "memkb=$(memkb)" -v
+      displayName: 'Run vMANW Layer 0'
+
+  - job: Run_vMANW_Layer_1
+    dependsOn: Run_vMANW_Layer_0
+    steps:
+    - script: ansible-playbook -i ./winsrv/core/server-inv.yml  ./winsrv/core/vmanw-layer-1.yml --extra-vars "server_ip=$(server_ip)" --extra-vars "server_name=$(server_name)" --extra-vars "server_user=$(server_user)" --extra-vars "server_password=$(server_password)" --extra-vars "server_domain=$(server_domain)" --extra-vars "admingroup=$(admingroup)" --extra-vars "server_timezone=$(server_timezone)" --extra-vars "ServerSpecificLocalAdminDomain=$(ServerSpecificLocalAdminDomain)" -v
+      displayName: 'Run vMANW Layer 1'
+
+  - job: Run_vMANW_Layer_2
+    dependsOn: Run_vMANW_Layer_1
+    steps:
+    - script: ansible-playbook -i ./winsrv/core/server-inv.yml  ./winsrv/generic/vmanw-layer-2.yml --extra-vars "server_ip=$(server_ip)" --extra-vars "server_name=$(server_name)" --extra-vars "server_user=$(server_user)" --extra-vars "server_password=$(server_password)" --extra-vars "winrmtrustedhosts=$(winrmtrustedhosts)" --extra-vars "ansible_port=5986" --extra-vars "ansible_winrm_server_cert_validation=ignore" -v
+      displayName: 'Run Generic Layer 2'
+
+  - job: Run_vMANW_vRops_Post
+    dependsOn: Run_vMANW_Layer_2
+    pool: AU-POWERSHELL
+    steps:
+    - template: core/vmanw-vrops-post.yml
+
+  - job: Run_vMANW_Post
+    dependsOn: Run_vMANW_vRops_Post
+    pool: AU-POWERSHELL
+    steps:
+    - template: core/vmanw-post.yml
+
+- stage: AU_vSphere_W2K22_CORE
+  variables:
+  - group: vman_infra_au
+  - group: vman_infra_au_vsphere
+  - group: vmanw-core
+
+  dependsOn: []
+  pool:
+    name: AU-ANSIBLE
+  jobs:
+  - job: Run_vMANW_PreChecks
+    pool: AU-POWERSHELL
+    steps:
+    - template: core/vmanw-pre.yml
+
+  - job: Run_vMANW_Layer_0
+    dependsOn: Run_vMANW_PreChecks
+    steps:
+    - script: ansible-playbook -i ./winsrv/core/server-inv.yml  ./winsrv/core/vmanw-vsphere-layer-0.yml --extra-vars "server_ip=$(server_ip)" --extra-vars "server_gw=$(server_gw)" --extra-vars "server_mask=$(server_mask)" --extra-vars "server_dns1=$(server_dns1)" --extra-vars "server_dns2=$(server_dns2)" --extra-vars "server_name=$(server_name)" --extra-vars "server_domain=$(server_domain)" --extra-vars "server_user=$(server_user)" --extra-vars "server_password=$(server_password)" --extra-vars "server_owner_fullname=$(server_owner_fullname)" --extra-vars "server_owner_org=$(server_owner_org)" --extra-vars "server_timezoneint=$(server_timezoneint)" --extra-vars "domain_join_user=$(domain_join_user)" --extra-vars "domain_join_pass=$(domain_join_pass)" --extra-vars "vcenter_hostname=$(vcenter_hostname)" --extra-vars "vcenter_username=$(vcenter_username)" --extra-vars "vcenter_password=$(vcenter_password)" --extra-vars "vcenter_cluster=$(vcenter_cluster)" --extra-vars "vcenter_datastore=$(vcenter_datastore)" --extra-vars "vcenter_dc=$(vcenter_dc)" --extra-vars "vcenter_folder=$(vcenter_folder)" --extra-vars "vcenter_template=$(vcenter_template)" --extra-vars "vcenter_pg=$(vcenter_pg)" --extra-vars "cpusockets=$(cpusockets)" --extra-vars "cpucorespersocket=$(cpucorespersocket)" --extra-vars "memkb=$(memkb)" -v
+      displayName: 'Run vMANW Layer 0'
+
+  - job: Run_vMANW_Layer_1
+    dependsOn: Run_vMANW_Layer_0
+    steps:
+    - script: ansible-playbook -i ./winsrv/core/server-inv.yml  ./winsrv/core/vmanw-layer-1.yml --extra-vars "server_ip=$(server_ip)" --extra-vars "server_name=$(server_name)" --extra-vars "server_user=$(server_user)" --extra-vars "server_password=$(server_password)" --extra-vars "server_domain=$(server_domain)" --extra-vars "admingroup=$(admingroup)" --extra-vars "server_timezone=$(server_timezone)" --extra-vars "ServerSpecificLocalAdminDomain=$(ServerSpecificLocalAdminDomain)" -v
+      displayName: 'Run vMANW Layer 1'
+
+  - job: Run_vMANW_Layer_2
+    dependsOn: Run_vMANW_Layer_1
+    steps:
+    - script: ansible-playbook -i ./winsrv/core/server-inv.yml  ./winsrv/generic/vmanw-layer-2.yml --extra-vars "server_ip=$(server_ip)" --extra-vars "server_name=$(server_name)" --extra-vars "server_user=$(server_user)" --extra-vars "server_password=$(server_password)" --extra-vars "winrmtrustedhosts=$(winrmtrustedhosts)" --extra-vars "ansible_port=5986" --extra-vars "ansible_winrm_server_cert_validation=ignore" -v
+      displayName: 'Run Generic Layer 2'
+
+  - job: Run_vMANW_vRops_Post
+    dependsOn: Run_vMANW_Layer_2
+    pool: AU-POWERSHELL
+    steps:
+    - template: core/vmanw-vrops-post.yml
+
+  - job: Run_vMANW_Post
+    dependsOn: Run_vMANW_vRops_Post
+    pool: AU-POWERSHELL
+    steps:
+    - template: core/vmanw-post.yml

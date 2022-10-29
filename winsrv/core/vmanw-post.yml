@@ -1,0 +1,11 @@
+steps:
+- checkout: none
+  persistCredentials: true
+
+- task: PowerShell@2
+  displayName: 'Build Finished'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+              Write-Host "Finished build, dont forget to move the computer to the correct OU"

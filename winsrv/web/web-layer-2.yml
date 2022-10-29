@@ -1,0 +1,662 @@
+- hosts: windows_server
+  gather_facts: no
+  tasks:
+    - name: Check Windows Domain
+      ansible.windows.win_reg_stat:
+        path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+        name: Domain
+      register: Domain
+
+    - name: SecurityProviders SCHANNEL Ciphers NULL
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\NULL
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers DES 56/56
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\DES 56/56
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers RC2 56/128
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 56/128
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers RC2 128/128
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 128/128
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers RC2 40/128
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 40/128
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers RC4 40/128
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 40/128
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers RC4 128/128
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 128/128
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers RC4 56/128
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 56/128
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers RC4 64/128
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 64/128
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers Triple DES 168
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\Triple DES 168
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers AES 128/128
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\AES 128/128
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Ciphers AES 256/256
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\AES 256/256
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Hashes MD5
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\MD5
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Hashes SHA
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Hashes SHA256
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA256
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Hashes SHA512
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA512
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Hashes SHA384
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA384
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL KeyExchangeAlgorithms Diffie-Hellman
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\KeyExchangeAlgorithms\Diffie-Hellman
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL KeyExchangeAlgorithms PKCS
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\KeyExchangeAlgorithms\PKCS
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL KeyExchangeAlgorithms ECDH
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\KeyExchangeAlgorithms\ECDH
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Multi-Protocol Unified Hello Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\Multi-Protocol Unified Hello\Client
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL PCT 1.0 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\PCT 1.0\Client
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL SSL 2.0 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.0 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+
+    - name: SecurityProviders SCHANNEL SSL 3.0 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.1 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.2 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Multi-Protocol Unified Hello Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\Multi-Protocol Unified Hello\Client
+        name: DisabledByDefault
+        data: 00000001
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL PCT 1.0 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\PCT 1.0\Client
+        name: DisabledByDefault
+        data: 00000001
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL SSL 2.0 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client
+        name: DisabledByDefault
+        data: 00000001
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL SSL 3.0 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client
+        name: DisabledByDefault
+        data: 00000001
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.0 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client
+        name: DisabledByDefault
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.2 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client
+        name: DisabledByDefault
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.1 Client
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client
+        name: DisabledByDefault
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Multi-Protocol Unified Hello Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\Multi-Protocol Unified Hello\Server
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL PCT 1.0 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\PCT 1.0\Server
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL SSL 2.0 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL SSL 3.0 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.0 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.1 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.2 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server
+        name: Enabled
+        data: 4294967295
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL Multi-Protocol Unified Hello Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\Multi-Protocol Unified Hello\Server
+        name: DisabledByDefault
+        data: 00000001
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL PCT 1.0 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\PCT 1.0\Server
+        name: DisabledByDefault
+        data: 00000001
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL SSL 2.0 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server
+        name: DisabledByDefault
+        data: 00000001
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL SSL 3.0 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server
+        name: DisabledByDefault
+        data: 00000001
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.1 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server
+        name: DisabledByDefault
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.0 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server
+        name: DisabledByDefault
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL TLS 1.2 Server
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server
+        name: DisabledByDefault
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: SecurityProviders SCHANNEL KeyExchangeAlgorithms Diffie-Hellman
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\KeyExchangeAlgorithms\Diffie-Hellman
+        name: ServerMinKeyBitLength
+        data: 2048
+        type: dword
+        state: present
+
+    - name: SecurityProviders LSA FipsAlgorithmPolicy
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\FipsAlgorithmPolicy
+        name: Enabled
+        data: 00000000
+        type: dword
+        state: present
+
+    - name: Cryptography Configuration SSL 00010002
+      ansible.windows.win_regedit:
+        path: HKLM:\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002
+        name: Functions
+        data: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA
+        type: String
+        state: present
+
+    - name: Enroll Web server cert
+      ansible.windows.win_powershell:
+        script: |
+                $WebServerTemplate = "WebServerAuto"
+                $WinCert = Get-ChildItem Cert:\LocalMachine\MY | 
+                    % {
+                    $_ | Select `
+                        Thumbprint,
+                        @{N="Template";E={($_.Extensions | ?{$_.oid.Friendlyname -match "Certificate Template Information"}).Format(0) -replace "(.+)?=(.+)\((.+)?", '$2'}},
+                        @{N="Subject";E={$_.SubjectName.name}}
+                    } | where Template -eq $WebServerTemplate | where { $_.subject -eq 'CN='+@([String][System.Net.Dns]::GetHostByName($env:computerName).Hostname) }
+
+                    If ($WinCert){ Write-host "I already got certz, ignore"} else {
+                    while(!$WinCert)
+                         {
+
+                         & C:\Temp\PsExec.exe /accepteula -s certreq -enroll -machine -q $WebServerTemplate
+
+                            $WinCert = Get-ChildItem Cert:\LocalMachine\MY | 
+                                % {
+                                $_ | Select `
+                                    Thumbprint,
+                                    @{N="Template";E={($_.Extensions | ?{$_.oid.Friendlyname -match "Certificate Template Information"}).Format(0) -replace "(.+)?=(.+)\((.+)?", '$2'}},
+                                    @{N="Subject";E={$_.SubjectName.name}}
+                                } | where Template -eq $WebServerTemplate | where { $_.subject -eq 'CN='+@([String][System.Net.Dns]::GetHostByName($env:computerName).Hostname) }
+
+                                Write-host "No Cert to enrol yet, trying again in 30 seconds"
+                                Sleep -Seconds 30
+                         }
+                    }
+                    Write-host "Web Server Cert enrolled"
+
+    - name: Enable .Net 3.5
+      ansible.windows.win_feature:
+        name: NET-Framework-Core
+        state: present
+      register: net35_install
+
+    - name: Reboot if installing Web-Server feature requires it
+      ansible.windows.win_reboot:
+      when: net35_install.reboot_required
+
+    - name: Install IIS and sub features
+      ansible.windows.win_feature:
+        name: 
+        - Web-Server
+        - Web-WebServer
+        - Web-Common-Http
+        - Web-Default-Doc
+        - Web-Dir-Browsing
+        - Web-Http-Errors
+        - Web-Static-Content
+        - Web-Http-Redirect
+        - Web-Health
+        - Web-Http-Logging
+        - Web-Custom-Logging
+        - Web-Log-Libraries
+        - Web-Request-Monitor
+        - Web-Http-Tracing
+        - Web-Performance
+        - Web-Stat-Compression
+        - Web-Dyn-Compression
+        - Web-Security
+        - Web-Filtering
+        - Web-Basic-Auth
+        - Web-CertProvider
+        - Web-Client-Auth
+        - Web-Digest-Auth
+        - Web-Cert-Auth
+        - Web-IP-Security
+        - Web-Url-Auth
+        - Web-Windows-Auth
+        - Web-App-Dev
+        - Web-Net-Ext
+        - Web-Net-Ext45
+        - Web-AppInit
+        - Web-Asp-Net
+        - Web-Asp-Net45
+        - Web-ISAPI-Ext
+        - Web-ISAPI-Filter
+        - Web-Includes
+        - Web-Mgmt-Tools
+        - Web-Mgmt-Console
+        - Web-Mgmt-Compat
+        - Web-Metabase
+        - Web-WMI
+        - Web-Scripting-Tools
+        - Web-Mgmt-Service
+        - net-wcf-http-activation45
+        - net-wcf-msmq-activation45
+        - net-wcf-pipe-activation45
+        - net-wcf-tcp-activation45
+        state: present
+      register: iis_install
+
+    - name: Reboot if installing Web-Server feature requires it
+      ansible.windows.win_reboot:
+      when: iis_install.reboot_required
+                  
+    - name: Create Scripts Folder
+      ansible.windows.win_file:
+        path: C:\Scripts
+        state: directory
+
+    - name: Create Powershell script for IIS Log rotation
+      ansible.windows.win_copy:
+        dest: C:\Scripts\IISLogRotation.ps1
+        content: |
+            $Oldinetpublogs = Get-ChildItem -Path C:\inetpub\logs -Recurse -Filter *.log
+            $oldest = (get-date).AddDays(-30)
+            foreach($log in $Oldinetpublogs){
+                if($log.LastWriteTime -lt $oldest){
+                    $log.Delete()
+                 } 
+            }
+            $OldHTTPERRlogs = Get-ChildItem -Path C:\Windows\System32\LogFiles\HTTPERR -Recurse -Filter *.log
+            $oldest = (get-date).AddDays(-30)
+            foreach($log in $OldHTTPERRlogs){
+                if($log.LastWriteTime -lt $oldest){
+                    $log.Delete()
+                } 
+            }
+
+    - name: Create HTTPERR LogFiles Folder
+      ansible.windows.win_file:
+        path: C:\Windows\System32\LogFiles\HTTPERR
+        state: directory
+
+    - name: Create IIS Log Rotation Sch Task
+      community.windows.win_scheduled_task:
+        name: Daily_IIS_Log_Cleanup
+        actions:
+        - path: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+          arguments: C:\Scripts\IISLogRotation.ps1
+        triggers:
+        - type: daily
+          start_boundary: '2022-02-12T00:00:00'
+        username: SYSTEM
+        run_level: highest
+        state: present
+        compatibility: 4
+
+    - name: Correct HTTP binding on Default Web Site to use 127.0.0.1 instead of star.
+      ansible.windows.win_powershell:
+        script: |
+                $ErrorActionPreference = "Stop"
+                $DefaultWebSite = Get-WebBinding -Name "Default Web Site"
+                If ($DefaultWebSite.protocol -contains 'http'){
+                  Remove-WebBinding -Name "Default Web Site" -BindingInformation "*:80:" -Protocol http
+                }
+                New-WebBinding -Name "Default Web Site" -IPAddress "127.0.0.1" -Port 80 -Protocol http
+
+    - name: Create HTTPS binding on Default Web Site and set the default cert.
+      ansible.windows.win_powershell:
+        script: |
+                $ErrorActionPreference = "Stop"
+                $CertificateTemplate = "WebServerAuto"
+                $DefaultWebSite = Get-WebBinding -Name "Default Web Site"
+                If ($DefaultWebSite.protocol -notcontains 'https'){
+                  New-WebBinding -Name "Default Web Site" -IPAddress "127.0.0.1" -Port 443 -Protocol "https"
+                  $cert = Get-ChildItem Cert:\LocalMachine\MY | 
+                                % {
+                                $_ | Select `
+                                    Thumbprint,
+                                    @{N="Template";E={($_.Extensions | ?{$_.oid.Friendlyname -match "Certificate Template Information"}).Format(0) -replace "(.+)?=(.+)\((.+)?", '$2'}},
+                                    @{N="Subject";E={$_.SubjectName.name}}
+                                } | where Template -eq $CertificateTemplate | where { $_.subject -eq 'CN='+@([String][System.Net.Dns]::GetHostByName($env:computerName).Hostname) }
+                  (Get-WebBinding -Name "Default Web Site" -Port 443 -Protocol "https").AddSslCertificate($cert.Thumbprint, "My")
+                }
+
+    - name: Firewall rule to allow Remote Desktop on 3389/TCP
+      community.windows.win_firewall_rule:
+        name: Remote Desktop - User Mode (TCP-In)
+        localport: 3389
+        action: allow
+        direction: in
+        protocol: tcp
+        profiles: domain,private,public
+        state: present
+        enabled: yes
+
+    - name: Firewall rule to allow Remote Desktop on 3389/UDP
+      community.windows.win_firewall_rule:
+        name: Remote Desktop - User Mode (UDP-In)
+        localport: 3389
+        action: allow
+        direction: in
+        protocol: UDP
+        profiles: domain,private,public
+        state: present
+        enabled: yes
+
+    - name: Firewall rule to allow WINRM over HTTPS on TCP port 5986
+      community.windows.win_firewall_rule:
+        name: Windows Remote Management (HTTPS-In)
+        localport: 5986
+        action: allow
+        direction: in
+        protocol: tcp
+        profiles: domain,private,public
+        state: present
+        enabled: yes
+
+    - name: File and Printer Sharing (SMB-In)
+      community.windows.win_firewall_rule:
+        name: File and Printer Sharing (SMB-In)
+        localport: 445
+        action: allow
+        direction: in
+        protocol: tcp
+        profiles: domain,private,public
+        state: present
+        enabled: yes
+
+    - name: Disable Firewall rule Windows Remote Management (HTTP-In)
+      community.windows.win_firewall_rule:
+        name: Windows Remote Management (HTTP-In)
+        state: present
+        enabled: no
+
+    - name: Remove WinRM HTTP listner
+      ansible.windows.win_powershell:
+        script: |
+                & winrm delete winrm/config/Listener?Address=*+Transport=HTTP
+
+    - name: Update WinRM Trusted Host list
+      ansible.windows.win_shell: Set-Item WSMan:localhost\client\trustedhosts -value "{{ winrmtrustedhosts }}" -Force
+
+    - name: Remove temp dir
+      ansible.windows.win_file:
+        path: C:\Temp
+        state: absent
+
+    - name: Firewall - Disable All Profiles
+      community.windows.win_firewall:
+        state: disabled
+        profiles:
+        - Private        
+        - Domain
+        - Public
+      tags: disable_firewall
+
+    - name: Final Reboot before Post Layer
+      ansible.windows.win_reboot:

@@ -1,0 +1,46 @@
+- hosts: windows_server
+  gather_facts: no
+  tasks:
+    - name: Deploy VM from template
+      community.vmware.vmware_guest:
+        validate_certs: false
+        state: present
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        template: "{{ vcenter_template }}"
+        datacenter: "{{ vcenter_dc }}"
+        cluster: "{{ vcenter_cluster }}"
+        folder: "{{ vcenter_folder }}" 
+        datastore: "{{ vcenter_datastore }}"
+        name: "{{ server_name }}"
+        hardware:
+          memory_mb: "{{ memkb }}"
+          num_cpus: "{{ cpusockets }}"
+          num_cpu_cores_per_socket: "{{ cpucorespersocket }}"
+        networks:
+          - name: "{{ vcenter_pg }}"
+            ip: "{{ server_ip }}"
+            netmask: "{{ server_mask }}"
+            gateway: "{{ server_gw }}"
+            domain: "{{ server_domain }}"
+            dns_servers:
+            -  "{{ server_dns1 }}"
+            -  "{{ server_dns2 }}"
+        customization:
+         hostname: "{{ server_name }}"
+         joindomain: "{{ server_domain }}"
+         domain: "{{ server_domain }}"
+         domainadmin: "{{ domain_join_user }}"
+         domainadminpassword: "{{ domain_join_pass }}"
+         fullname: "{{ server_owner_fullname }}"
+         orgname: "{{ server_owner_org }}"
+         password: "{{ server_password }}"
+         timezone: "{{ server_timezoneint }}"
+         dns_servers:
+         -  "{{ server_dns1 }}"
+         -  "{{ server_dns2 }}"
+         dns_suffix: "{{ server_domain }}"
+        wait_for_ip_address: True
+        wait_for_customization: True
+      delegate_to: localhost

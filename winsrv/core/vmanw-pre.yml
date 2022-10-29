@@ -1,0 +1,149 @@
+steps:
+- checkout: none
+  persistCredentials: true
+
+- task: PowerShell@2
+  displayName: 'Check if AD Object Exists, if yes stop build.'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  $VMName = "$(server_name)"
+                  $adserver = "$(ad_server)"
+                  try{
+                      $ComputerObject = Get-ADComputer $VMName -Server $adserver
+                  }catch{
+                      #Dont display error
+                  }
+                    If ($ComputerObject)
+                        {
+                          Write-Error -Message "$VMName AD object exists in $($ComputerObject.DistinguishedName), stopping build. Please Check the server name provided for the pipeline again or manually remove the server from AD if the server needs to be rebuilt." -ErrorId 69 -ErrorAction Stop
+                        }
+                        else 
+                        {
+                          Write-Host "Lets go!! $VMName AD Object does not exist so we can continue with the build!"
+                        }
+
+- task: PowerShell@2
+  displayName: 'Create Server Specific Admin group into the roles OU.'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  $VMName = "$(server_name)"
+                  $date = Get-Date
+                  $DateStr = $Date.ToString("yyyy-MM-dd")
+                  $Description = "Local Server Specific Administrator AD Group for $VMName created on $DateStr"
+                  $ServerSpecificLocalAdminOU = "$(ServerSpecificLocalAdminOU)"
+                  $GroupName = "g_ServerAdmins_$VMName"
+                  $CheckADGroup = Get-ADGroup -Filter {SamAccountName -eq $GroupName}
+
+                  If (!$CheckADGroup){
+                      Write-Host "Lets go!! Creating $GroupName in $ServerSpecificLocalAdminOU"
+                      New-ADGroup -Name $GroupName -SamAccountName $GroupName -GroupCategory Security -GroupScope Global -DisplayName $GroupName -Path $ServerSpecificLocalAdminOU -Description $Description
+                      $CheckADGroup = Get-ADGroup -Filter {SamAccountName -eq $GroupName}
+                          If ($CheckADGroup){
+                              Write-Host "Wooohoo Group Created"
+                          } else {
+                              Write-Error -Message "Group creation failed, terminating script" -ErrorId 69 -ErrorAction Stop
+                          }
+                  } else  {
+                  Write-Host "$GroupName already exists, skipping creation"
+                  }
+
+- task: PowerShell@2
+  displayName: 'Check if IP pingy pingy, if yes stop build.'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  If((Test-NetConnection -ComputerName "$(server_ip)").PingSucceeded -eq $true){
+                  Write-Error -Message "IP Appears to reply to ICMP, terminating build" -ErrorId 69 -ErrorAction Stop
+                  }
+
+- task: PowerShell@2
+  displayName: 'Check if IP is reachable and if RDP is listening, if yes stop build.'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  If((Test-NetConnection -ComputerName "$(server_ip)" -CommonTCPPort RDP).TcpTestSucceeded -eq $true){
+                  Write-Error -Message "IP Appears to be in use by something listening on RDP, terminating build" -ErrorId 69 -ErrorAction Stop
+                  }
+
+- task: PowerShell@2
+  displayName: 'Check if IP is reachable and if WinRM is listening, if yes stop build.'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  If((Test-NetConnection -ComputerName "$(server_ip)" -CommonTCPPort WINRM).TcpTestSucceeded -eq $true){
+                  Write-Error -Message "IP Appears to be in use by something listening on WINRM, terminating build" -ErrorId 69 -ErrorAction Stop
+                  }
+
+- task: PowerShell@2
+  displayName: 'Check if IP is reachable and if WinRM over HTTPS is listening, if yes stop build'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  If((Test-NetConnection -ComputerName "$(server_ip)" -Port 5986).TcpTestSucceeded -eq $true){
+                  Write-Error -Message "IP Appears to be in use by something listening on WINRM, terminating build" -ErrorId 69 -ErrorAction Stop
+                  }
+
+- task: PowerShell@2
+  displayName: 'Check if IP is reachable and if SSH is listening, if yes stop build.'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  If((Test-NetConnection -ComputerName "$(server_ip)" -Port 22).TcpTestSucceeded -eq $true){
+                  Write-Error -Message "IP Appears to be in use by something listening on Port 22, terminating build" -ErrorId 69 -ErrorAction Stop
+                  }
+
+- task: PowerShell@2
+  displayName: 'Create Computer account into Provisioning OU'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  $date = Get-Date
+                  $DateStr = $Date.ToString("yyyy-MM-dd")
+                  $Description = "$(server_description)"
+                  $Description = $Description + ' built on ' + $DateStr
+                  $VMName = "$(server_name)"
+                  $VMdomain = "$(server_domain)"
+                  $adserver = "$(ad_server)"
+                  try{
+                      $ComputerObject = Get-ADComputer $VMName -Server $adserver
+                  }catch{
+                      #Dont display error
+                  }
+                  $ExpectedOU = "$(ProvisioningOU)"
+
+                      If (!$ComputerObject){
+
+                      Write-Host "No computer account found, creating it now in $ExpectedOU"
+                      $ComputerObject = New-ADComputer -Name ($VMName).ToUpper() -SamAccountName ($VMName).ToUpper() -Path $ExpectedOU -Description $Description -Server $adserver
+                      $ComputerObject = Get-ADComputer $VMName -Server $adserver
+
+                          If ($ComputerObject){
+                          $ErrorActionPreference = "Stop"
+                          Write-Host "Updating: $($ComputerObject.DistinguishedName) with DNSHostName attribute"
+                          Set-ADComputer -Identity $ComputerObject -DNSHostName $("$VMName.$VMDomain").ToLower() -Server $adserver
+                          Write-Host "Account Created: $($ComputerObject.DistinguishedName)"
+                          }else{
+                          $ErrorActionPreference = "Stop"
+                          Write-Error -Message "Account creation failed, terminating script" -ErrorId 69 -ErrorAction Stop
+                          }
+                      } else {
+                        Write-Host "Account already exists at: $($ComputerObject.DistinguishedName), skipping account creation"
+                      }
+
+- task: PowerShell@2
+  displayName: 'Pause for 60 seconds to allow AD to replicate the account.'
+  inputs:
+    targetType: 'inline'
+    pwsh: false
+    script: |
+                  Start-Sleep -Seconds 60
